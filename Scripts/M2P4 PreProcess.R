@@ -85,10 +85,54 @@ select(trans, items2)
 View(orders_translated_NoNA)
 summary(orders_translated_NoNA)
 
-View(trans)
+# filter out completed transactions----
+View(orders_translated_NoNA)
+Ord_Completed <- orders_translated_NoNA %>% 
+  filter(state == "Completed")
+View(Ord_Completed)
+
+# Join orders with line items
+#data=lineitems, product_quantity, sku, unit-price based on product_id
+Order_LineItems <- inner_join(x = lineitems %>% 
+                                select(id_order, product_quantity), 
+                              y = Ord_Completed, by = "id_order")
+length(unique(Order_LineItems$id_order))
+
+jt<-Ord_Completed %>% 
+  group_by(id_order) %>%
+  summarise(n=n_distinct(id_order))
+View(jt)
+
+# do I have the same amount of transactions in trans.csv than line items and orders?
 nrow(trans)
-nrow(orders_translated_NoNA)
-nrow(orders_translated_NoNA$state = completed)
-nrow(trans$items2)
+
+orders %>% 
+  filter(state == "Completed") %>% 
+  left_join(lineitems %>% select(id_order, product_quantity)) %>% # find out product quanity
+  group_by(id_order) %>% 
+  summarise(n = n()) %>% # find out total quantity by order id
+  filter(n > 1) %>% # take out all the orders with only 1 product
+  nrow() # show me the total quanity of observations
+
+trans_id <- orders %>% 
+  filter(state == "Completed") %>% 
+  left_join(lineitems %>% select(id_order, product_quantity)) %>% # find out product quanity
+  group_by(id_order) %>% 
+  summarise(n = n()) %>% # find out total quantity by order id
+  filter(n > 1)
+
+Ord_trans_id<-trans_id %>% 
+  bind_cols(trans)
+
+View(Ord_trans_id)
 View(lineitems)
-ggplot(data = orders_translated_NoNA)
+
+#add column in line items with product quantity * unit price----
+total_product_price_lineitems <- lineitems %>% 
+  group_by(id_order) %>% 
+  mutate(paid = product_quantity * unit_price)
+View(total_product_price_lineitems)
+
+#add paid from lineitems to order_trans_id by product_id
+total_product_price_lineitems %>% 
+  filter(product_quantity >1)
