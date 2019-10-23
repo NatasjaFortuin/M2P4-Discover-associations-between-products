@@ -4,6 +4,7 @@ library(tidyr)
 library(ggplot2)
 library(lattice)
 library(mice)
+library(dplyr)
 install.packages("mice")
 # Import data----
 lineitems <- read_csv2(file = "Data/lineitems.csv")
@@ -133,6 +134,17 @@ total_product_price_lineitems <- lineitems %>%
   mutate(paid = product_quantity * unit_price)
 View(total_product_price_lineitems)
 
-#add paid from lineitems to order_trans_id by product_id
-total_product_price_lineitems %>% 
-  filter(product_quantity >1)
+#Creating a table with the aggregated data------------------
+#T_from_P <- Products %>%
+ # filter(state=="Completed") %>%
+  #group_by(id_order) %>%
+  #summarise(n=n(),np=sum(product_quantity),
+   #         itemsP=paste0(sku,collapse=","),
+    #        p_total=sum(product_quantity*unit_price)) %>%
+  #filter(n>1)
+#Verify the consistency of the prices --------------------
+#Orders %>%
+ #filter(id_order %in% unlist(T_from_P)) -> O_mt2
+#O_mt2 %>%
+  #left_join(select(T_from_P,id_order,np,itemsP)) %>%
+  #left_join(P_per_o) -> Final_orders
