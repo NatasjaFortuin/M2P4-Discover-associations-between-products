@@ -8,7 +8,7 @@ library(tidyverse)
 lineitems_temp <- read_csv2("Data/lineitems.csv")
 orders_temp <- read_csv2("Data/orders_translated.csv") 
 trans <- read_csv2("Data/trans.csv")
-
+brand <- 
 # process -----------------------------------------------------------------
 
 # how can I filter completed orders in orders.csv?
@@ -23,18 +23,22 @@ orders_temp %>%
 # find out wich are the duplicated orders_id
 unique_orders <- orders_temp %>% 
   distinct(id_order)
+View(unique_orders)
 
 line_items_2plus <- lineitems_temp %>% 
   group_by(id_order) %>% 
   summarise(count = n()) %>% 
   filter(count >= 2)
+View(line_items_2plus)
 
 orders_completed <- orders_temp %>% 
   filter(state == "Completed") %>% 
   select(id_order)
+View(orders_completed)
 
 line_items_completed <- line_items_2plus %>% 
   filter(id_order %in% orders_completed$id_order)
+View(line_items_completed)
 
 trans_info <- line_items_completed %>% 
   bind_cols(trans) %>% 
