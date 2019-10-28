@@ -137,6 +137,16 @@
 #nfexercise <- nfexercise[-which(nfexercise$PW %in% outliers),]
 #boxplot(nfexercise$PW)
 
+#FILTER----
+#in een kolom op basis van character waarden/tekst
+#maak eerst een object/vector met de waarden:
+#relevant_cat <- c("display","smartphone", "pc", "tablet", "laptop", 
+                  "smartwhatch", "other")
+#en dan geef je je selectie een nieuwe naam en filter op kolom %in% object
+#met daarin de vastgestelde waarden waar op gezocht moet worden.
+#Minimized_products <- Minimized_products %>% 
+ #filter(category %in% relevant_cat)
+
 #KOLOMNAAM WIJZIGEN----
 #names(nfcars) <-c("name", "speed", "distance")
 

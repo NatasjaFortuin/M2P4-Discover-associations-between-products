@@ -280,3 +280,49 @@ inspect(rules_brands)
 ruleExplorer(rules_brands)
 
 View(products_with_category_brand)
+class(products_with_brands$brand)
+
+products_with_category_brand
+arrange(products_with_category_brand, desc(category))
+
+#subset "display", "smartphone", "pc", "tablet", "laptop", "smartwhatch, "other"
+#or all except "accessoiries"
+Minimized_products<-products_with_category_brand
+
+relevant_cat <- c("display","smartphone", "pc", "tablet", "laptop", 
+                  "smartwhatch", "other")
+
+Minimized_products <- Minimized_products %>% 
+  filter(category %in% relevant_cat)
+
+View(Minimized_products)
+
+#### 4TH ITERATION ####
+#MBA based on downsized categories, all excluding accessoires
+
+# DEFINE WHAT TO ANALYSE WITH TRANS file IN MARKET BASKET ANALYSIS----
+
+#data with relevant category data: Minimized_products
+
+trans_relevant_cat <- trans@itemInfo %>% 
+  rename(sku = labels) %>% 
+  right_join(Minimized_products, by = "sku", copy = F) %>% 
+  distinct()
+
+str(trans_relevant_cat)
+
+glimpse(Minimized_products)
+glimpse(trans_relevant_cat)
+glimpse(trans_categories)
+
+#### WAT DOET DIT EIGENLIJK, REVIEW JOAN####
+trans@itemInfo$labels <- trans_relevant_cat$category
+
+trans_category_downsized <- aggregate(trans, by = trans@itemInfo$labels)
+
+trans_category_downsized
+
+View(trans_category_downsized)
+
+Rules_downsized_a <-apriori(trans_category_downsized, parameter = list(supp = 0.2, conf = 0.7))         
+inspect(Rules_downsized_a)
