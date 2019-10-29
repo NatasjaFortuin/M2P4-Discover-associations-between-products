@@ -22,6 +22,14 @@ itemLabels(Etrans)# To see the item labels
 View(Etrans)
 summary(Etrans)
 
+inspect (trans) # View transactions
+length (trans) # Number of transactions
+size (trans) # Number of items per transaction
+LIST(trans) # Lists the transactions by conversion (LIST must be capitalized)
+itemLabels(trans)# To see the item labels
+View(trans)
+summary(trans)
+
 # import Products with Category from cleaned csv----
 products_with_category <- read_delim("Data/products_with_category.csv", 
                                      ";", escape_double = FALSE, trim_ws = TRUE)
@@ -183,11 +191,14 @@ inspect(sort(AssRules_01_5, by = "count"))
 #[5]  {Dell Desktop,ViewSonic Monitor}                   => {HP Laptop} 0.01525165 0.5747126  2.960869 150 
 
 ItemRules_HP_Laptop <- subset(AssRules_01_5, items %in% "HP Laptop")
-View(ItemRules)
-inspect(ItemRules)
+View(ItemRules_HP_Laptop)
+inspect(ItemRules_HP_Laptop)
 
 ItemRules_iMac <- subset(AssRules_01_5, items %in% "iMac")
 inspect(ItemRules_iMac)
+
+ItemRules_Apple_Laptop <- subset(AssRules_01_5, items %in% "Apple MacBook Air")
+inspect(ItemRules_Apple_Laptop)
 
 is.redundant(AssRules_01_5)
 is.redundant(AssRules_01_6)
@@ -279,14 +290,39 @@ inspect(rules_brands)
 
 ruleExplorer(rules_brands)
 
+ItemFreqPlot3<-itemFrequencyPlot(trans_brand, type = c("absolute"), 
+                                 weighted = FALSE, support = NULL, topN = 10,
+                                 population = NULL, popCol = "blue", popLwd = 1,
+                                 lift = FALSE, horiz = FALSE, 
+                                 names = TRUE, cex.names =  graphics::par("cex.axis"), 
+                                 xlab = NULL, ylab = NULL, mai = NULL)
+
 View(products_with_category_brand)
 class(products_with_brands$brand)
 
 products_with_category_brand
 arrange(products_with_category_brand, desc(category))
 
+
+rules_e <- apriori(trans_, parameter = list(supp = 0.025, conf = 0.7))
+inspect(rules)
+
+ruleExplorer(rules)
+
+ItemFreqPlot3<-itemFrequencyPlot(trans, type = c("absolute"), 
+                                 weighted = FALSE, support = NULL, topN = 10,
+                                 population = NULL, popCol = "blue", popLwd = 1,
+                                 lift = FALSE, horiz = FALSE, 
+                                 names = TRUE, cex.names =  graphics::par("cex.axis"), 
+                                 xlab = NULL, ylab = NULL, mai = NULL)
+
+
+#### NO USE, min accessoires ####
 #subset "display", "smartphone", "pc", "tablet", "laptop", "smartwhatch, "other"
 #or all except "accessoiries"
+products_with_category_brand
+arrange(products_with_category_brand, desc(category))
+
 Minimized_products<-products_with_category_brand
 
 relevant_cat <- c("display","smartphone", "pc", "tablet", "laptop", 
@@ -297,32 +333,7 @@ Minimized_products <- Minimized_products %>%
 
 View(Minimized_products)
 
-#### 4TH ITERATION ####
-#MBA based on downsized categories, all excluding accessoires
 
-# DEFINE WHAT TO ANALYSE WITH TRANS file IN MARKET BASKET ANALYSIS----
 
-#data with relevant category data: Minimized_products
 
-trans_relevant_cat <- trans@itemInfo %>% 
-  rename(sku = labels) %>% 
-  right_join(Minimized_products, by = "sku", copy = F) %>% 
-  distinct()
 
-str(trans_relevant_cat)
-
-glimpse(Minimized_products)
-glimpse(trans_relevant_cat)
-glimpse(trans_categories)
-
-#### WAT DOET DIT EIGENLIJK, REVIEW JOAN####
-trans@itemInfo$labels <- trans_relevant_cat$category
-
-trans_category_downsized <- aggregate(trans, by = trans@itemInfo$labels)
-
-trans_category_downsized
-
-View(trans_category_downsized)
-
-Rules_downsized_a <-apriori(trans_category_downsized, parameter = list(supp = 0.2, conf = 0.7))         
-inspect(Rules_downsized_a)
